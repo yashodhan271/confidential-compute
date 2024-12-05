@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-secure-app
+  labels:
+    app: {{ .Values.app.name }}
+    {{- include "confidential-compute.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.app.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.app.name }}
+    spec:
+      runtimeClassName: {{ if eq .Values.confidentialComputing.platform "sgx" }}sgx-runtime{{ else }}nitro-runtime{{ end }}
+      containers:
+      - name: {{ .Values.app.name }}
+        image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}"
+        imagePullPolicy: {{ .Values.app.image.pullPolicy }}
+        securityContext:
+          privileged: false
+          readOnlyRootFilesystem: true
+        resources:
+          {{- toYaml .Values.app.resources | nindent 12 }}
+        {{- if eq .Values.confidentialComputing.platform "sgx" }}
+        volumeMounts:
+        - name: sgx-device
+          mountPath: /dev/sgx
+        env:
+        - name: SGX_ENABLED
+          value: "true"
+        - name: SGX_ENCLAVE_SIZE
+          value: {{ .Values.confidentialComputing.sgx.enclaveSize }}
+        {{- if .Values.confidentialComputing.sgx.attestation.enabled }}
+        - name: SGX_ATTESTATION_URL
+          value: {{ .Values.confidentialComputing.sgx.attestation.providerUrl }}
+        {{- end }}
+        {{- end }}
+        {{- if eq .Values.confidentialComputing.platform "nitro" }}
+        env:
+        - name: AWS_NITRO_ENABLED
+          value: "true"
+        - name: NITRO_MEMORY_SIZE
+          value: {{ .Values.confidentialComputing.nitro.memorySize }}
+        {{- end }}
+      {{- if eq .Values.confidentialComputing.platform "sgx" }}
+      volumes:
+      - name: sgx-device
+        hostPath:
+          path: /dev/sgx
+      {{- end }}

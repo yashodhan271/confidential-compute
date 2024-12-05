@@ -1,0 +1,50 @@
+# Confidential Computing Configuration
+confidentialComputing:
+  enabled: true
+  platform: "sgx"  # Options: sgx, nitro
+  
+  # SGX specific configuration
+  sgx:
+    driver:
+      enabled: true
+    enclaveSize: "4GB"
+    attestation:
+      enabled: true
+      providerUrl: ""
+      
+  # AWS Nitro specific configuration
+  nitro:
+    enabled: false
+    memorySize: "4GB"
+    
+# Application Configuration
+app:
+  name: secure-app
+  image:
+    repository: your-app-image
+    tag: latest
+    pullPolicy: IfNotPresent
+  
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "2"
+      memory: "4Gi"
+
+# Security Configuration
+security:
+  encryption:
+    enabled: true
+    provider: "vault"  # Options: vault, aws-kms
+    keyRotationPeriod: "24h"
+  
+  attestation:
+    enabled: true
+    interval: "1h"
+    
+# Service Configuration
+service:
+  type: ClusterIP
+  port: 8080
