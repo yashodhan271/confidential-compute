@@ -146,12 +146,6 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙋 Support
-
-- 📚 [Documentation](https://your-docs-url.com)
-- 💬 [Discord Community](https://discord.gg/your-channel)
-- 🐛 [Issue Tracker](https://github.com/your-repo/issues)
-
 ## 🙌 Acknowledgments
 
 - Intel SGX Team
